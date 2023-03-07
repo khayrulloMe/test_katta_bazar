@@ -124,8 +124,9 @@ class MainViewModelImpl @Inject constructor(private val useCase: GetOffersUseCas
             is MainIntent.GoToDetails -> {
                 job?.cancel()
                 job = viewModelScope.launch {
-                    delay(400)
+                    delay(300)
                     appNavigation.navigateTo(DetailScreen(intent.item))
+
 
                 }
             }
