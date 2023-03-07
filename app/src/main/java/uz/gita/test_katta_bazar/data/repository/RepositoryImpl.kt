@@ -16,7 +16,6 @@ class RepositoryImpl @Inject constructor(
     private val gson: Gson
 ) : Repository {
     override suspend fun getOffers(): ResultData<TechModel> {
-
         val response = api.getOffers()
         if (response.isSuccessful) {
             response.body()?.let {

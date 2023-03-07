@@ -2,7 +2,6 @@ package uz.gita.test_katta_bazar.di
 
 import android.content.Context
 import com.google.gson.Gson
-import com.mocklets.pluto.PlutoInterceptor
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -25,7 +24,7 @@ class FeatureModel {
     fun provideOkHttp(@ApplicationContext context: Context) = OkHttpClient.Builder().addInterceptor { chain ->
         val request = chain.request().newBuilder().build()
         chain.proceed(request)
-    }.addInterceptor(PlutoInterceptor()).build()
+    }.build()
 
     @[Provides Singleton]
     fun provideRetrofit(client: OkHttpClient) = Retrofit.Builder()

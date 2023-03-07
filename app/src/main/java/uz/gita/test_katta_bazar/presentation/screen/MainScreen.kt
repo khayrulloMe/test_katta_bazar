@@ -6,6 +6,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -25,12 +26,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.androidx.AndroidScreen
 import cafe.adriel.voyager.hilt.getViewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.orbitmvi.orbit.compose.collectAsState
 import uz.gita.test_katta_bazar.data.moddel.OfferModel
 import uz.gita.test_katta_bazar.data.moddel.TechModel
@@ -55,21 +59,21 @@ class MainScreen : AndroidScreen() {
 @Composable
 fun MainScreenContent(onEvent: (MainIntent) -> Unit, uiState: MainUiState) {
 
-    LaunchedEffect(key1 = Unit) {
-        onEvent(MainIntent.GetDataRequest)
-    }
-
     var message by remember {
         mutableStateOf("")
     }
+
     var isLoading by remember {
         mutableStateOf(false)
     }
     var list by remember {
         mutableStateOf((listOf<OfferModel>()))
     }
+
+
     when (uiState) {
         is MainUiState.Loading -> {
+            Log.d("Shoxrux", "MainScreenContent: ${uiState.isLoading}")
             isLoading = uiState.isLoading
         }
         is MainUiState.Message -> {
@@ -77,25 +81,48 @@ fun MainScreenContent(onEvent: (MainIntent) -> Unit, uiState: MainUiState) {
 
         }
         is MainUiState.Success -> {
-
+            isLoading = false
+            message = ""
             list = uiState.list.offerResponses
 
         }
 
+
     }
-    Loading(isLoading = isLoading)
-    Message(message = message)
-    SuccessContent(list)
+
+
+    val refresh = rememberSwipeRefreshState(isRefreshing = isLoading)
+
+    SwipeRefresh(state = refresh, onRefresh = { onEvent(MainIntent.GetDataRequest) }) {
+
+        SuccessContent(list) {
+            onEvent(MainIntent.GoToDetails(it))
+        }
+
+    }
+
+    AnimatedVisibility(visible = message.isNotEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center
+        ) {
+            Text(message, style = TextStyle(fontSize = 24.sp, color = MaterialTheme.colorScheme.error))
+        }
+    }
+
 
 
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SuccessContent(list: List<OfferModel>) {
+fun SuccessContent(list: List<OfferModel>, onClick: (item: OfferModel) -> Unit) {
     LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Fixed(2), modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(8.dp)) {
         items(list) { item ->
-            TechItem(item = item)
+            TechItem(item = item) {
+                onClick(it)
+            }
 
         }
     }
@@ -104,15 +131,17 @@ fun SuccessContent(list: List<OfferModel>) {
 }
 
 @Composable
-fun TechItem(item: OfferModel) {
+fun TechItem(item: OfferModel, onClick: (item: OfferModel) -> Unit) {
+
     val image = rememberImagePainter(data = item.imageResponse.url, builder = {})
-    Column(
-        modifier = Modifier
-            .padding(4.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.inversePrimary)
-            .padding(4.dp)
-    ) {
+    Column(modifier = Modifier
+        .padding(4.dp)
+        .clip(RoundedCornerShape(20.dp))
+        .background(MaterialTheme.colorScheme.inversePrimary)
+        .padding(4.dp)
+        .clickable {
+            onClick(item)
+        }) {
         Image(
             painter = image,
             contentDescription = "",
@@ -123,46 +152,37 @@ fun TechItem(item: OfferModel) {
 
         )
         Text(
-            text = item.brand, style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),modifier = Modifier.padding(top = 4.dp, bottom = 4
-                .dp, start = 4.dp),
+            overflow = TextOverflow.Ellipsis,
+            text = item.brand,
+            style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(
+                top = 4.dp, bottom = 4.dp, start = 4.dp
+            ),
             maxLines = 1
         )
         Text(
-            text = item.merchant, style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.W500), modifier = Modifier.padding(top = 4.dp, bottom
-            = 4.dp, start = 4.dp),
+            overflow = TextOverflow.Ellipsis,
+            text = item.merchant,
+            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.W500),
+            modifier = Modifier.padding(
+                top = 4.dp, bottom = 4.dp, start = 4.dp
+            ),
             maxLines = 1
         )
-        Text(text = item.name, style = TextStyle(fontSize = 16.sp), modifier = Modifier.padding(top = 4.dp, bottom = 16.dp, start = 4.dp), maxLines =
-        1)
+        Text(
+            overflow = TextOverflow.Ellipsis,
+            text = item.name,
+            style = TextStyle(fontSize = 16.sp),
+            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp, start = 4.dp),
+            maxLines = 1
+        )
     }
 }
 
 
-@Composable
-fun Loading(isLoading: Boolean) {
-    val loading by remember {
-        mutableStateOf(isLoading)
-    }
-    AnimatedVisibility(visible = loading) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-    }
-}
+
 
 @Composable
 fun Message(message: String) {
-    AnimatedVisibility(visible = message.isNotEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center
-        ) {
-            Text(message, style = TextStyle(fontSize = 24.sp, color = MaterialTheme.colorScheme.error))
-        }
-    }
+
 }
