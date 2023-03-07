@@ -30,8 +30,7 @@ class InternetBroadCast(val onInternet:(Boolean)->Unit) : BroadcastReceiver() {
             .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val wifi = connMgr
             .getNetworkInfo(ConnectivityManager.TYPE_WIFI)
-        val mobile = connMgr
-            .getNetworkInfo(ConnectivityManager.TYPE_MOBILE)
+        val mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE)
             if(wifi!!.isConnected||mobile!!.isConnected){
                 onInternet(true)
             }else{

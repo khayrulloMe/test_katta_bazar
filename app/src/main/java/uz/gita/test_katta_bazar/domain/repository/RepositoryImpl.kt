@@ -1,13 +1,10 @@
-package uz.gita.test_katta_bazar.data.repository
+package uz.gita.test_katta_bazar.domain.repository
 
-import android.util.Log
 import com.google.gson.Gson
 import uz.gita.test_katta_bazar.data.mapper.toModel
 import uz.gita.test_katta_bazar.data.moddel.TechModel
 import uz.gita.test_katta_bazar.data.remote.api_service.ApiService
 import uz.gita.test_katta_bazar.data.remote.dto.ErrorResponseBody
-import uz.gita.test_katta_bazar.data.remote.dto.TechResponse
-import uz.gita.test_katta_bazar.domain.repository.Repository
 import uz.gita.test_katta_bazar.utils.ResultData
 import javax.inject.Inject
 

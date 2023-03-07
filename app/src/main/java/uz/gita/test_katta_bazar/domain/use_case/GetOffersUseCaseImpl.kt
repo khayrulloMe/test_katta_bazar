@@ -1,4 +1,4 @@
-package uz.gita.test_katta_bazar.domain.use_case.impl
+package uz.gita.test_katta_bazar.domain.use_case
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers

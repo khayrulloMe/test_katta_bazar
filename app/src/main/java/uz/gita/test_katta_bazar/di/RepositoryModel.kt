@@ -4,7 +4,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import uz.gita.test_katta_bazar.data.repository.RepositoryImpl
+import uz.gita.test_katta_bazar.domain.repository.RepositoryImpl
 import uz.gita.test_katta_bazar.domain.repository.Repository
 import javax.inject.Singleton
 
