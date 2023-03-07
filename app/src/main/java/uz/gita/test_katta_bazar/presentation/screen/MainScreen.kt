@@ -3,6 +3,7 @@ package uz.gita.test_katta_bazar.presentation.screen
 import android.media.audiofx.DynamicsProcessing.Stage
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,11 +13,18 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.androidx.AndroidScreen
@@ -36,8 +44,10 @@ class MainScreen : AndroidScreen() {
     override fun Content() {
         val viewModel = getViewModel<MainViewModelImpl>()
         val uiState = viewModel.collectAsState().value
-        MainScreenContent(viewModel::onEventDispatcher, uiState)
+        Surface(modifier = Modifier.fillMaxSize()) {
+            MainScreenContent(viewModel::onEventDispatcher, uiState)
 
+        }
     }
 
 }
@@ -80,14 +90,14 @@ fun MainScreenContent(onEvent: (MainIntent) -> Unit, uiState: MainUiState) {
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SuccessContent(list: List<OfferModel>) {
-    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(4.dp)) {
-
+    LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Fixed(2), modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(8.dp)) {
         items(list) { item ->
             TechItem(item = item)
-        }
 
+        }
     }
 
 
@@ -95,18 +105,35 @@ fun SuccessContent(list: List<OfferModel>) {
 
 @Composable
 fun TechItem(item: OfferModel) {
-    val image = rememberImagePainter(
-        data = item.imageResponse.url,
-        builder = {
-        }
-    )
-    Column(modifier = Modifier.fillMaxWidth(0.9f)) {
+    val image = rememberImagePainter(data = item.imageResponse.url, builder = {})
+    Column(
+        modifier = Modifier
+            .padding(4.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.inversePrimary)
+            .padding(4.dp)
+    ) {
         Image(
-            painter = image, contentDescription = "", modifier = Modifier
+            painter = image,
+            contentDescription = "",
+            modifier = Modifier
+                .clip(shape = RoundedCornerShape(20.dp))
                 .width(item.imageResponse.width.dp)
                 .height(item.imageResponse.height.dp)
+
         )
-        Text(text = item.merchant)
+        Text(
+            text = item.brand, style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),modifier = Modifier.padding(top = 4.dp, bottom = 4
+                .dp, start = 4.dp),
+            maxLines = 1
+        )
+        Text(
+            text = item.merchant, style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.W500), modifier = Modifier.padding(top = 4.dp, bottom
+            = 4.dp, start = 4.dp),
+            maxLines = 1
+        )
+        Text(text = item.name, style = TextStyle(fontSize = 16.sp), modifier = Modifier.padding(top = 4.dp, bottom = 16.dp, start = 4.dp), maxLines =
+        1)
     }
 }
 
@@ -116,8 +143,7 @@ fun Loading(isLoading: Boolean) {
     val loading by remember {
         mutableStateOf(isLoading)
     }
-    AnimatedVisibility(visible = loading)
-    {
+    AnimatedVisibility(visible = loading) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
