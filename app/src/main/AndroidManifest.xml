@@ -13,6 +13,7 @@
         android:icon="@drawable/katta_bozor"
         android:label="@string/app_name"
         android:name=".app.App"
+        
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.Test_katta_bazar"

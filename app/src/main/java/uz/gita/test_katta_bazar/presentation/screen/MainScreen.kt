@@ -35,6 +35,8 @@ import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import org.orbitmvi.orbit.compose.collectAsState
 import uz.gita.test_katta_bazar.data.moddel.OfferModel
 import uz.gita.test_katta_bazar.data.moddel.TechModel
@@ -58,11 +60,11 @@ class MainScreen : AndroidScreen() {
 
 @Composable
 fun MainScreenContent(onEvent: (MainIntent) -> Unit, uiState: MainUiState) {
+    var job: Job? = null
 
     var message by remember {
         mutableStateOf("")
     }
-
     var isLoading by remember {
         mutableStateOf(false)
     }
@@ -96,6 +98,7 @@ fun MainScreenContent(onEvent: (MainIntent) -> Unit, uiState: MainUiState) {
     SwipeRefresh(state = refresh, onRefresh = { onEvent(MainIntent.GetDataRequest) }) {
 
         SuccessContent(list) {
+            job?.cancel()
             onEvent(MainIntent.GoToDetails(it))
         }
 
@@ -110,7 +113,6 @@ fun MainScreenContent(onEvent: (MainIntent) -> Unit, uiState: MainUiState) {
             Text(message, style = TextStyle(fontSize = 24.sp, color = MaterialTheme.colorScheme.error))
         }
     }
-
 
 
 }
@@ -178,8 +180,6 @@ fun TechItem(item: OfferModel, onClick: (item: OfferModel) -> Unit) {
         )
     }
 }
-
-
 
 
 @Composable

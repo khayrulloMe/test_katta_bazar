@@ -5,10 +5,13 @@ import android.net.ConnectivityManager
 import android.util.Log
 import androidx.core.content.ContextCompat.registerReceiver
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.syntax.simple.intent
 import org.orbitmvi.orbit.syntax.simple.reduce
@@ -29,6 +32,7 @@ class MainViewModelImpl @Inject constructor(private val useCase: GetOffersUseCas
     MainViewModel,
     ViewModel() {
     override val container: Container<MainUiState, MainSideEffect> = container(MainUiState.Loading())
+    var job: Job? = null
 
     init {
         intent {
@@ -118,7 +122,12 @@ class MainViewModelImpl @Inject constructor(private val useCase: GetOffersUseCas
                 }
             }
             is MainIntent.GoToDetails -> {
-                appNavigation.navigateTo(DetailScreen(intent.item))
+                job?.cancel()
+                job = viewModelScope.launch {
+                    delay(400)
+                    appNavigation.navigateTo(DetailScreen(intent.item))
+
+                }
             }
         }
     }
